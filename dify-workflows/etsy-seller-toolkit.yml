@@ -1,6 +1,6 @@
 app:
-  description: 'Generate an SEO-optimized Etsy title, 13 tags, and a product description from a product idea.'
-  icon: 🛍️
+  description: Generate an SEO-optimized Etsy title, 13 tags, and a product description.
+  icon: "\U0001F6CD\uFE0F"
   icon_background: '#FFF3E0'
   mode: workflow
   name: Etsy Seller Toolkit
@@ -66,9 +66,8 @@ workflow:
       zIndex: 0
     nodes:
 
-    # ── START NODE ──────────────────────────────────────────────────
     - data:
-        desc: 'Enter the product idea to generate a listing for'
+        desc: Enter your product idea
         selected: false
         title: Start
         type: start
@@ -93,75 +92,54 @@ workflow:
       type: custom
       width: 244
 
-    # ── LLM NODE ────────────────────────────────────────────────────
     - data:
-        desc: 'Generate Etsy title, tags, and description as structured JSON'
-        title: Generate Etsy Listing
-        type: llm
-        model:
-          provider: anthropic
-          name: claude-haiku-4-5
-          mode: chat
-          completion_params:
-            temperature: 0.7
-            max_tokens: 1500
-        prompt_template:
-          - role: system
-            text: |
-              You are an expert Etsy SEO specialist with years of experience helping
-              digital product sellers rank higher in Etsy search results.
-
-              Given a product idea, generate exactly three things:
-
-              1. TITLE: A single Etsy product title.
-                 - Must be exactly 3 to 14 words (count carefully)
-                 - Put the most important search keywords first
-                 - Sound natural, like a real product name
-                 - No ALL-CAPS, no excessive punctuation, no keyword stuffing
-
-              2. TAGS: Exactly 13 tags that buyers actually search for.
-                 - Each tag must be 20 characters or fewer (including spaces)
-                 - Mix of broad tags (e.g. "digital planner") and specific tags (e.g. "weekly planner pdf")
-                 - No special characters: no &, <, >, or "
-                 - Think like a buyer, not a seller
-
-              3. DESCRIPTION: A product description of 150 to 500 words.
-                 - Start with the buyer's problem or desire
-                 - Describe what the product is and what it includes
-                 - Use a warm, conversational tone — like talking to a friend
-                 - End with a gentle call to action
-                 - Do NOT stuff keywords unnaturally
-
-              CRITICAL: Respond ONLY with valid JSON in this exact format, nothing else:
-              {
-                "title": "your title here",
-                "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11", "tag12", "tag13"],
-                "description": "your description here"
-              }
-          - role: user
-            text: 'Product idea: {{#start_node.product_idea#}}'
-        vision:
+        context:
           enabled: false
-          configs:
-            variable_selector: []
+          variable_selector: []
+        desc: Generate Etsy listing as JSON
         memory:
           enabled: false
           window:
             enabled: false
             size: 50
-        context:
-          enabled: false
-          variable_selector: []
-        structured_output:
-          enabled: false
+        model:
+          completion_params:
+            max_tokens: 1500
+            temperature: 0.7
+          mode: chat
+          name: claude-haiku-4-5
+          provider: anthropic
+        prompt_template:
+        - role: system
+          text: "You are an expert Etsy SEO specialist.\n\nGiven a product idea, generate\
+            \ exactly:\n\n1. TITLE: 3-14 words, most searched keywords first, natural\
+            \ sounding, no ALL-CAPS.\n\n2. TAGS: Exactly 13 tags, each 20 characters\
+            \ or fewer including spaces, no special\ncharacters like & < > or quotes.\n\
+            \n3. DESCRIPTION: 150-500 words, warm conversational tone, start with\
+            \ the buyer's desire,\nend with a gentle call to action, no keyword stuffing.\n\
+            \nRespond ONLY with valid JSON, no other text:\n{\n  \"title\": \"your\
+            \ title here\",\n  \"tags\": [\"tag1\",\"tag2\",\"tag3\",\"tag4\",\"\
+            tag5\",\"tag6\",\"tag7\",\"tag8\",\"tag9\",\"tag10\",\"tag11\",\"tag12\"\
+            ,\"tag13\"],\n  \"description\": \"your description here\"\n}\n"
+        - role: user
+          text: 'Product idea: {{#start_node.product_idea#}}'
         retry_config:
           enabled: true
-          max_retries: 2
-          retry_interval: 1000
           exponential_backoff:
             enabled: false
-            multiplier: 2
             max_interval: 10000
+            multiplier: 2
+          max_retries: 2
+          retry_interval: 1000
+        selected: false
+        structured_output:
+          enabled: false
+        title: Generate Etsy Listing
+        type: llm
+        vision:
+          configs:
+            variable_selector: []
+          enabled: false
       height: 122
       id: llm_node
       position:
@@ -176,78 +154,52 @@ workflow:
       type: custom
       width: 244
 
-    # ── CODE NODE (parse + validate JSON from LLM) ──────────────────
     - data:
-        desc: 'Parse LLM JSON output and validate Etsy constraints'
-        title: Validate & Parse
-        type: code
+        code: "import json\nimport re\n\ndef main(llm_output: str) -> dict:\n    clean\
+          \ = re.sub(r'```(?:json)?|```', '', llm_output).strip()\n    try:\n    \
+          \    data = json.loads(clean)\n    except Exception as e:\n        return\
+          \ {\"title\": \"\", \"tags_display\": str(e), \"description\": \"\", \"\
+          is_valid\": False}\n    title = data.get(\"title\", \"\")\n    tags = data.get(\"\
+          tags\", [])\n    description = data.get(\"description\", \"\")\n    errors\
+          \ = []\n    words = title.strip().split()\n    if len(words) < 3:\n    \
+          \    errors.append(f\"Title too short: {len(words)} words (min 3)\")\n \
+          \   if len(words) > 14:\n        errors.append(f\"Title too long: {len(words)}\
+          \ words (max 14)\")\n    if len(tags) != 13:\n        errors.append(f\"\
+          Wrong tag count: {len(tags)} (need 13)\")\n    for i, tag in enumerate(tags):\n\
+          \        if len(tag) > 20:\n            errors.append(f\"Tag {i+1} too long:\
+          \ '{tag}' ({len(tag)} chars)\")\n    tags_display = \", \".join(tags)\n\
+          \    validation_summary = \" | \".join(errors) if errors else \"All checks\
+          \ passed\"\n    return {\n        \"title\": title,\n        \"tags_display\"\
+          : tags_display,\n        \"description\": description,\n        \"is_valid\"\
+          : len(errors) == 0,\n        \"validation_summary\": validation_summary\n\
+          \    }\n"
         code_language: python3
-        code: |
-          import json
-          import re
-
-          def main(llm_output: str) -> dict:
-              # Strip markdown fences if present
-              clean = re.sub(r'```(?:json)?|```', '', llm_output).strip()
-
-              try:
-                  data = json.loads(clean)
-              except json.JSONDecodeError as e:
-                  return {
-                      "title": "",
-                      "tags": [],
-                      "description": "",
-                      "validation_errors": [f"JSON parse error: {str(e)}"]
-                  }
-
-              errors = []
-              title = data.get("title", "")
-              tags = data.get("tags", [])
-              description = data.get("description", "")
-
-              # Validate title
-              words = title.strip().split()
-              if len(words) < 3:
-                  errors.append(f"Title too short: {len(words)} words (min 3)")
-              if len(words) > 14:
-                  errors.append(f"Title too long: {len(words)} words (max 14)")
-
-              # Validate tags
-              if len(tags) != 13:
-                  errors.append(f"Wrong tag count: {len(tags)} (need exactly 13)")
-              for i, tag in enumerate(tags):
-                  if len(tag) > 20:
-                      errors.append(f"Tag {i+1} too long: '{tag}' ({len(tag)} chars, max 20)")
-                  if re.search(r'[&<>"]', tag):
-                      errors.append(f"Tag {i+1} has invalid characters: '{tag}'")
-
-              return {
-                  "title": title,
-                  "tags": tags,
-                  "tags_display": ", ".join(tags),
-                  "description": description,
-                  "validation_errors": errors,
-                  "is_valid": len(errors) == 0
-              }
-        inputs:
-          llm_output:
-            type: string
-            value_selector:
-              - llm_node
-              - text
+        desc: Parse and validate LLM JSON output
         outputs:
-          title:
-            type: string
-          tags:
-            type: array[string]
-          tags_display:
-            type: string
           description:
+            children: null
             type: string
-          validation_errors:
-            type: array[string]
           is_valid:
-            type: boolean
+            children: null
+            type: string
+          tags_display:
+            children: null
+            type: string
+          title:
+            children: null
+            type: string
+          validation_summary:
+            children: null
+            type: string
+        selected: false
+        title: Validate and Parse
+        type: code
+        variables:
+        - label: llm_output
+          value_selector:
+          - llm_node
+          - text
+          variable: llm_output
       height: 122
       id: code_node
       position:
@@ -262,35 +214,34 @@ workflow:
       type: custom
       width: 244
 
-    # ── END NODE ─────────────────────────────────────────────────────
     - data:
         desc: ''
         outputs:
-          - value_selector:
-              - code_node
-              - title
-            value_type: string
-            variable: title
-          - value_selector:
-              - code_node
-              - tags_display
-            value_type: string
-            variable: tags_display
-          - value_selector:
-              - code_node
-              - description
-            value_type: string
-            variable: description
-          - value_selector:
-              - code_node
-              - is_valid
-            value_type: boolean
-            variable: is_valid
-          - value_selector:
-              - code_node
-              - validation_errors
-            value_type: array[string]
-            variable: validation_errors
+        - value_selector:
+          - code_node
+          - title
+          value_type: string
+          variable: title
+        - value_selector:
+          - code_node
+          - tags_display
+          value_type: string
+          variable: tags_display
+        - value_selector:
+          - code_node
+          - description
+          value_type: string
+          variable: description
+        - value_selector:
+          - code_node
+          - is_valid
+          value_type: string
+          variable: is_valid
+        - value_selector:
+          - code_node
+          - validation_summary
+          value_type: string
+          variable: validation_summary
         selected: false
         title: End
         type: end
