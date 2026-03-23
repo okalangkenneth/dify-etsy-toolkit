@@ -22,6 +22,8 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
   - nginx, web, api, worker, worker_beat, plugin_daemon, db_postgres, redis, weaviate, sandbox, ssrf_proxy
   - Dify UI accessible at http://localhost (redirects to /apps setup page)
 - Note: First run requires ~1hr on Windows/Docker Desktop due to large image extraction
+- Converted `dify/` from nested git repo to proper git submodule pointing to https://github.com/langgenius/dify (commit ce37059)
+- Phase 2: Added Etsy Toolkit frontend components (page.tsx, EtsyForm, EtsyOutput, useEtsyToolkit)
 
 ### IN PROGRESS
 
