@@ -16,12 +16,17 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 
 ### COMPLETED
 - Project folder and CLAUDE.md created
+- Cloned Dify (shallow) into `dify/` subdirectory
+- Configured Docker: copied `dify/docker/.env.example` → `dify/docker/.env`
+- Ran `docker compose up -d` from `dify/docker/` — all 11 containers running
+  - nginx, web, api, worker, worker_beat, plugin_daemon, db_postgres, redis, weaviate, sandbox, ssrf_proxy
+  - Dify UI accessible at http://localhost (redirects to /apps setup page)
+- Note: First run requires ~1hr on Windows/Docker Desktop due to large image extraction
 
 ### IN PROGRESS
 
 ### REMAINING
-- Fork and clone Dify
-- Explore api/ (Python/FastAPI) and web/ (Next.js)
+- Explore dify/api/ (Python/FastAPI) and dify/web/ (Next.js)
 - Build Etsy workflow DSL (LLM nodes + variables)
 - Build frontend panel: web/app/etsy-toolkit/page.tsx
 - Build API route: api/controllers/console/etsy_toolkit.py
