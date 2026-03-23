@@ -22,13 +22,17 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 - Phase 2: Frontend components written (EtsyForm, EtsyOutput, useEtsyToolkit, EtsyToolkit)
 - Phase 2: Etsy Seller Toolkit workflow DSL built and imported into Dify
 - Phase 2: Workflow PUBLISHED and tested end-to-end successfully
-  - Input: product idea (paragraph)
-  - LLM node: claude-opus-4 generating JSON title/tags/description
-  - Code node: Python validation of Etsy constraints
-  - Output: title, tags_display, description, is_valid, validation_summary
-- Cloned Dify (shallow) into `dify/` subdirectory
-- Configured Docker: copied `dify/docker/.env.example` → `dify/docker/.env`
-- Ran `docker compose up -d` from `dify/docker/` — all 11 containers running
+- Phase 3: Python API route (etsy_toolkit.py) written and mounted via docker-compose.override.yml
+- Phase 3: CSRF token auth wired into frontend hook and verified working
+- Phase 3: Full stack tested end-to-end - browser to Flask to Dify workflow to Claude to response
+- Phase 3: README.md written with architecture diagram, demo output, setup instructions
+
+### IN PROGRESS
+
+### REMAINING
+- Take screenshot for README images folder
+- Record Loom demo (2 min walkthrough)
+- Open upstream PR to Dify
   - nginx, web, api, worker, worker_beat, plugin_daemon, db_postgres, redis, weaviate, sandbox, ssrf_proxy
   - Dify UI accessible at http://localhost (redirects to /apps setup page)
 - Note: First run requires ~1hr on Windows/Docker Desktop due to large image extraction
