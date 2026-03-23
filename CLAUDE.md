@@ -16,6 +16,16 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 
 ### COMPLETED
 - Project folder and CLAUDE.md created
+- Cloned Dify into dify/ as git submodule
+- Docker setup - all 11 containers running at http://localhost
+- Anthropic plugin installed (v0.3.6) with claude-haiku-4-5-20251001
+- Phase 2: Frontend components written (EtsyForm, EtsyOutput, useEtsyToolkit, EtsyToolkit)
+- Phase 2: Etsy Seller Toolkit workflow DSL built and imported into Dify
+- Phase 2: Workflow PUBLISHED and tested end-to-end successfully
+  - Input: product idea (paragraph)
+  - LLM node: claude-opus-4 generating JSON title/tags/description
+  - Code node: Python validation of Etsy constraints
+  - Output: title, tags_display, description, is_valid, validation_summary
 - Cloned Dify (shallow) into `dify/` subdirectory
 - Configured Docker: copied `dify/docker/.env.example` → `dify/docker/.env`
 - Ran `docker compose up -d` from `dify/docker/` — all 11 containers running
@@ -28,11 +38,9 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 ### IN PROGRESS
 
 ### REMAINING
-- Explore dify/api/ (Python/FastAPI) and dify/web/ (Next.js)
-- Build Etsy workflow DSL (LLM nodes + variables)
-- Build frontend panel: web/app/etsy-toolkit/page.tsx
 - Build API route: api/controllers/console/etsy_toolkit.py
-- Add Etsy constraint validation with 100% test coverage
+- Connect frontend panel to the published workflow via API
+- Write validation tests (pytest + vitest)
 - Deploy to Railway or Render
 - Write README with screenshots and Loom demo link
 - Open upstream PR to Dify
