@@ -34,6 +34,9 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 - Note: First run requires ~1hr on Windows/Docker Desktop due to large image extraction
 - Converted `dify/` from nested git repo to proper git submodule pointing to https://github.com/langgenius/dify (commit ce37059)
 - Phase 2: Added Etsy Toolkit frontend components (page.tsx, EtsyForm, EtsyOutput, useEtsyToolkit)
+- Phase 3: Added ETSY_TOOLKIT_WORKFLOW_KEY env var to docker-compose.yaml (api service) and dify/docker/.env
+  - Workflow API key: app-GDmvpcyfckZlU5m3hx1ZfmKR
+  - api container restarted cleanly — migrations ran, gunicorn listening at :5001
 
 ### IN PROGRESS
 
