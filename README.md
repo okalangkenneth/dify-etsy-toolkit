@@ -8,6 +8,8 @@
 
 ## Live Demo
 
+https://www.loom.com/share/ba339dd2478e49b284e0edd20ba32fd8
+
 Type a product idea → get a complete, validated Etsy listing in seconds.
 
 **Input:**
