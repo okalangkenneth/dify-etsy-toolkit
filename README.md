@@ -1,20 +1,14 @@
 # Etsy Seller Toolkit
 
-> An AI-powered Etsy listing generator built as a feature extension on top of [Dify](https://github.com/langgenius/dify) — a 90k-star open-source LLM platform.
+> A feature extension built on top of [Dify](https://github.com/langgenius/dify) (90k ⭐) that generates
+> SEO-optimized Etsy listings from a single product idea — title, 13 tags, and a description,
+> all validated against Etsy's constraints automatically.
 
-![Etsy Seller Toolkit Demo](./images/demo-screenshot.png)
+![Demo screenshot](./images/demo-screenshot.jpg)
 
-## What it does
+## Live Demo
 
-Paste in a product idea. Get back a complete, SEO-optimized Etsy listing in seconds:
-
-- **Title** — 3–14 words, highest-value keywords first, naturally phrased
-- **13 Tags** — each ≤20 characters, a mix of broad and specific buyer search terms
-- **Description** — 150–500 words, warm conversational tone, buyer-first opening, soft call to action
-
-All outputs are automatically validated against Etsy's listing constraints before being returned.
-
-## Demo
+Type a product idea → get a complete, validated Etsy listing in seconds.
 
 **Input:**
 ```
@@ -25,68 +19,69 @@ A printable weekly planner for busy moms who want to stay organized
 ```json
 {
   "title": "Weekly Planner Printable for Busy Moms Organization PDF Download",
-  "tags": [
-    "weekly planner", "mom planner", "printable planner",
-    "busy mom organizer", "weekly schedule", "mom organization",
-    "planner pdf", "digital planner", "family organizer",
-    "week at a glance", "mom life planner", "planning printable",
-    "instant download"
-  ],
+  "tags": ["weekly planner", "mom planner", "printable planner", "busy mom organizer",
+           "weekly schedule", "mom organization", "planner download", "family planner",
+           "week at a glance", "mom life planner", "digital planner", "planning printable",
+           "instant download"],
   "is_valid": true,
   "validation_summary": "All checks passed"
 }
 ```
 
+## Why I built this
+
+I run an Etsy digital product store and know the SEO rules cold:
+- Titles must be **3–14 words**
+- Tags must be **≤20 characters each**, exactly **13 tags**
+- Descriptions need to open with the buyer's desire, not keywords
+
+Most AI tools ignore these constraints entirely. This one enforces them automatically and tells you exactly what's wrong if something fails validation.
+
 ## Architecture
 
 ```
-Browser (Next.js UI)
+Browser (etsy-toolkit.html)
+    ↓  POST /console/api/etsy-toolkit/generate
+nginx (Docker)
     ↓
-Flask API Route  (/console/api/etsy-toolkit/generate)
-    ↓
+Flask API route  (etsy_toolkit.py)
+    ↓  calls Dify workflow internally
 Dify Workflow Engine
-    ↓  Start → LLM Node → Code Node → End
-Claude (claude-haiku-4-5-20251001)
-    ↓
-Python validation (title word count, tag length, special chars)
-    ↓
-JSON response
+    ↓  Start → LLM → Code → End
+Claude (claude-haiku-4-5)
+    ↓  JSON: title + tags + description
+Python validation node
+    ↓  checks word count, tag lengths, special chars
+Validated JSON response
 ```
+
+## What I added to Dify
+
+This project extends Dify with three original additions:
+
+**1. Workflow DSL** (`dify-workflows/etsy-seller-toolkit.yml`)
+A 4-node workflow: Start → LLM (Claude with Etsy SEO prompt) → Code (Python validation) → End.
+Import it into any Dify instance with one click.
+
+**2. Python API Route** (`dify/api/controllers/console/etsy_toolkit.py`)
+A Flask-RESTx endpoint that accepts a product idea, calls the Dify workflow, and returns
+structured JSON. Mounted into Docker via `docker-compose.override.yml` without modifying
+the upstream image.
+
+**3. Frontend Demo** (`etsy-toolkit-demo.html`)
+A zero-dependency HTML page served via nginx with full output rendering, per-field copy
+buttons, and real-time Etsy constraint display.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Platform | [Dify](https://github.com/langgenius/dify) v1.13.2 |
-| LLM | Anthropic Claude (via Dify Anthropic plugin) |
-| Backend | Python 3.12 + Flask (Dify's API service) |
-| Frontend | Next.js 14 + TypeScript |
+| LLM | Anthropic Claude via Dify plugin |
+| Backend | Python 3.12 + Flask (Dify API service) |
+| Frontend | Vanilla HTML/CSS/JS (zero build step) |
 | Infrastructure | Docker Compose (11 services) |
-| Workflow | Dify DSL (YAML) with LLM + Code nodes |
-
-## What I built on top of Dify
-
-This project extends Dify with three original additions:
-
-**1. Etsy Seller Toolkit Workflow** (`dify-workflows/etsy-seller-toolkit.yml`)
-A 4-node Dify workflow: Start → LLM (Claude with a custom Etsy SEO prompt) → Code (Python validation) → End. Importable as a DSL file into any Dify instance.
-
-**2. Python API Route** (`dify/api/controllers/console/etsy_toolkit.py`)
-A new Flask-RESTx endpoint that accepts a product idea, calls the published Dify workflow via its internal API, validates the output, and returns structured JSON. Mounted into the running Docker container via `docker-compose.override.yml`.
-
-**3. Next.js Frontend Panel** (`dify/web/app/(commonLayout)/etsy-toolkit/`)
-A new page inside Dify's console UI with a form component, output display, per-field copy buttons, real-time Etsy constraint validation (title word count, tag character limits), and error state handling.
-
-## Why I built this
-
-I run an Etsy digital product business and know the SEO constraints cold — titles must be 3–14 words, tags max 20 characters each, descriptions need to be buyer-first, not keyword-stuffed. Most AI tools ignore these rules. This one enforces them automatically.
-
-The project demonstrates:
-- Contributing a feature to a large open-source codebase (90k stars)
-- Full-stack development across Python and TypeScript
-- LLM workflow design with validation logic
-- Docker-based development with service overrides
-- Domain knowledge applied as product constraints
+| Workflow | Dify DSL with LLM + Code nodes |
 
 ## Setup
 
@@ -98,52 +93,36 @@ The project demonstrates:
 
 ```bash
 git clone https://github.com/okalangkenneth/dify-etsy-toolkit
-cd dify-etsy-toolkit
-
-# Start Dify
-cd dify/docker
+cd dify-etsy-toolkit/dify/docker
 cp .env.example .env
-# Add your ETSY_TOOLKIT_WORKFLOW_KEY to .env
+# Add ETSY_TOOLKIT_WORKFLOW_KEY=your_key to .env
 docker compose up -d
 ```
 
-Then open `http://localhost` and complete the Dify setup wizard.
+Open `http://localhost` and complete the Dify setup wizard, then:
 
-**Import the workflow:**
-1. Go to Studio → Import DSL file
-2. Select `dify-workflows/etsy-seller-toolkit.yml`
-3. Configure your Anthropic API key in Settings → Model Provider
-4. Publish the workflow and copy its API key to `.env`
+1. **Plugins** → Install Anthropic → add your API key
+2. **Studio** → Import DSL file → select `dify-workflows/etsy-seller-toolkit.yml`
+3. Publish the workflow → copy its API key to `.env` as `ETSY_TOOLKIT_WORKFLOW_KEY`
+4. Open `http://localhost/etsy-toolkit.html`
 
-## Project Structure
+## Project structure
 
 ```
 dify-etsy-toolkit/
-├── CLAUDE.md                          # AI session rules and build progress
-├── README.md                          # This file
+├── etsy-toolkit-demo.html             # Standalone demo UI
 ├── dify-workflows/
-│   └── etsy-seller-toolkit.yml        # Dify workflow DSL (importable)
+│   └── etsy-seller-toolkit.yml        # Dify workflow DSL
 └── dify/
     ├── docker/
-    │   └── docker-compose.override.yml  # Mounts our files + env vars
+    │   └── docker-compose.override.yml
     ├── api/controllers/console/
-    │   ├── etsy_toolkit.py              # New Flask API route
-    │   └── __init__.py                  # Route registration
+    │   └── etsy_toolkit.py            # Flask API route
     └── web/app/(commonLayout)/etsy-toolkit/
-        ├── page.tsx
-        └── components/
-            ├── EtsyToolkit.tsx
-            ├── EtsyForm.tsx
-            ├── EtsyOutput.tsx
-            └── useEtsyToolkit.ts
+        └── components/                # Next.js components
 ```
-
-## Contributing
-
-This is a portfolio project. For contributions to Dify itself, see
-[langgenius/dify](https://github.com/langgenius/dify/blob/main/CONTRIBUTING.md).
 
 ## License
 
-Built on top of [Dify](https://github.com/langgenius/dify) which is licensed under the
-Apache 2.0 License. Our additions follow the same license.
+Built on [Dify](https://github.com/langgenius/dify) (Apache 2.0).
+Our additions follow the same license.
