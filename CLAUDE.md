@@ -18,35 +18,35 @@ a 90k-star open-source LLM platform. Sellers enter a product idea and receive:
 - Project folder and CLAUDE.md created
 - Cloned Dify into dify/ as git submodule
 - Docker setup - all 11 containers running at http://localhost
-- Anthropic plugin installed (v0.3.6) with claude-haiku-4-5-20251001
+- Anthropic plugin installed (v0.3.6)
 - Phase 2: Frontend components written (EtsyForm, EtsyOutput, useEtsyToolkit, EtsyToolkit)
-- Phase 2: Etsy Seller Toolkit workflow DSL built and imported into Dify
-- Phase 2: Workflow PUBLISHED and tested end-to-end successfully
+- Phase 2: Etsy Seller Toolkit workflow DSL built, imported and PUBLISHED in Dify
+- Phase 2: Workflow tested end-to-end successfully (title, 13 tags, description, validation)
 - Phase 3: Python API route (etsy_toolkit.py) written and mounted via docker-compose.override.yml
-- Phase 3: CSRF token auth wired into frontend hook and verified working
-- Phase 3: Full stack tested end-to-end - browser to Flask to Dify workflow to Claude to response
-- Phase 3: README.md written with architecture diagram, demo output, setup instructions
+- Phase 3: CSRF token auth wired and verified working
+- Phase 3: Full stack tested - browser to Flask to Dify workflow to Claude to response
+- Phase 3: Standalone HTML demo page (etsy-toolkit-demo.html) served at localhost/etsy-toolkit.html
+- Phase 3: README.md written with architecture, demo output, setup instructions
 
 ### IN PROGRESS
 
 ### REMAINING
-- Take screenshot for README images folder
 - Record Loom demo (2 min walkthrough)
-- Open upstream PR to Dify
-  - nginx, web, api, worker, worker_beat, plugin_daemon, db_postgres, redis, weaviate, sandbox, ssrf_proxy
-  - Dify UI accessible at http://localhost (redirects to /apps setup page)
-- Note: First run requires ~1hr on Windows/Docker Desktop due to large image extraction
-- Converted `dify/` from nested git repo to proper git submodule pointing to https://github.com/langgenius/dify (commit ce37059)
-- Phase 2: Added Etsy Toolkit frontend components (page.tsx, EtsyForm, EtsyOutput, useEtsyToolkit)
-- Phase 3: Added ETSY_TOOLKIT_WORKFLOW_KEY env var to docker-compose.yaml (api service) and dify/docker/.env
-  - Workflow API key: app-GDmvpcyfckZlU5m3hx1ZfmKR
-  - api container restarted cleanly — migrations ran, gunicorn listening at :5001
+- Write LinkedIn post
+- Pin repo on GitHub profile
+- Deploy to Railway or Render (optional - for public URL)
+- Phase 4: dify/web/.env.local created with correct NEXT_PUBLIC_* vars pointing to http://localhost
+- Phase 4: bun install completed in dify/web/ (1024 packages)
+- Phase 4: Added 'use client' directive to all 4 custom components (EtsyForm, EtsyOutput, EtsyToolkit, useEtsyToolkit) — required by Next.js App Router
+- Phase 4: Next.js 16.2.0 (Turbopack) dev server running at http://localhost:3000
+- Phase 4: /etsy-toolkit route compiled and returned HTTP 200 ✅
+  - Note: First Turbopack compile on Windows E:\ drive takes ~27 min (slow filesystem warning expected); subsequent compiles are fast
 
 ### IN PROGRESS
 
 ### REMAINING
-- Build API route: api/controllers/console/etsy_toolkit.py
-- Connect frontend panel to the published workflow via API
+- Take screenshot of http://localhost:3000/etsy-toolkit for README images folder
+- Record Loom demo (2 min walkthrough)
 - Write validation tests (pytest + vitest)
 - Deploy to Railway or Render
 - Write README with screenshots and Loom demo link
